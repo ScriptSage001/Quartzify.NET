@@ -130,12 +130,12 @@ public class QuartzService : IHostedService
                         JobKey = jobKey.ToString(),
                         GroupName = jobKey.Group,
                         JobName = jobKey.Name,
-                        JobType = detail.JobType.FullName,
-                        Description = detail.Description,
+                        JobType = detail?.JobType.FullName!,
+                        Description = detail?.Description!,
                         NextFireTime = nextFireTime,
                         PreviousFireTime = previousFireTime,
                         TriggerCount = triggers.Count,
-                        JobData = detail.JobDataMap.ToDictionary()
+                        JobData = detail?.JobDataMap.ToDictionary()!
                     });
                 }
             }
@@ -164,7 +164,7 @@ public class QuartzService : IHostedService
                 foreach (var triggerKey in triggerKeys)
                 {
                     var trigger = await _scheduler.GetTrigger(triggerKey);
-                    var jobKey = trigger.JobKey;
+                    var jobKey = trigger?.JobKey!;
                     var jobDetail = await _scheduler.GetJobDetail(jobKey);
 
                     allTriggers.Add(new TriggerDetail
@@ -174,7 +174,7 @@ public class QuartzService : IHostedService
                         TriggerName = triggerKey.Name,
                         JobKey = jobKey.ToString(),
                         JobName = jobKey.Name,
-                        Description = trigger.Description,
+                        Description = trigger?.Description!,
                         StartTime = trigger.StartTimeUtc.LocalDateTime,
                         EndTime = trigger.EndTimeUtc?.LocalDateTime,
                         NextFireTime = trigger.GetNextFireTimeUtc()?.LocalDateTime,
