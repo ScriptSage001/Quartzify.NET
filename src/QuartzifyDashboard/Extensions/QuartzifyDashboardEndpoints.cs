@@ -1,13 +1,22 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using QuartzifyDashboard.Models;
 using QuartzifyDashboard.Services;
 
 namespace QuartzifyDashboard.Extensions;
 
+/// <summary>
+/// Provides extension methods to define Quartz dashboard API endpoints.
+/// </summary>
 public static class QuartzDashboardEndpoints
 {
+    /// <summary>
+    /// Maps the Quartz dashboard API endpoints to the given route prefix.
+    /// </summary>
+    /// <param name="endpoints">The endpoint route builder.</param>
+    /// <param name="routePrefix">The base route prefix for the API endpoints.</param>
     public static void MapQuartzDashboardEndpoints(this IEndpointRouteBuilder endpoints, string routePrefix)
     {
         routePrefix = routePrefix.Trim('/');
@@ -25,7 +34,7 @@ public static class QuartzDashboardEndpoints
 
         // Scheduler endpoints
         var securedApiGroup = apiGroup.RequireAuthorization();
-            
+        
         securedApiGroup.MapGet("/scheduler/status", async (QuartzService quartzService) =>
         {
             var status = await quartzService.GetSchedulerStatusAsync();

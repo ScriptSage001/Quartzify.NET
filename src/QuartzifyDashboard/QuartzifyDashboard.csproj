@@ -2,8 +2,19 @@
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
+        <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+        <Authors>Kaustab Samanta</Authors>
+        <Description>A beautiful admin dashboard for Quartz.NET scheduler</Description>
+        <PackageId>Quartzify.NET</PackageId>
+        <Version>0.1.0</Version>
+        <PackageProjectUrl>https://github.com/ScriptSage001/Quartzify.NET</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/ScriptSage001/Quartzify.NET</RepositoryUrl>
+        <PackageTags>quartz;scheduler;dashboard;admin;monitoring</PackageTags>
+        <PackageLicenseExpression>Apache</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>

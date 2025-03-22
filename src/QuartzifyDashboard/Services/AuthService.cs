@@ -1,27 +1,42 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using QuartzifyDashboard.Helpers;
 
 namespace QuartzifyDashboard.Services;
 
+/// <summary>
+/// Service responsible for handling user authentication and JWT generation/validation.
+/// </summary>
 public class AuthService
 {
-    private readonly IConfiguration _configuration;
+    private readonly AuthSettings _authSettings;
     private readonly ILogger<AuthService> _logger;
 
-    public AuthService(IConfiguration configuration, ILogger<AuthService> logger)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AuthService"/> class.
+    /// </summary>
+    /// <param name="authSettings">Injected authentication settings.</param>
+    /// <param name="logger">Logger for tracking authentication-related logs.</param>
+    public AuthService(IOptions<AuthSettings> authSettings, ILogger<AuthService> logger)
     {
-        _configuration = configuration;
+        _authSettings = authSettings.Value;
         _logger = logger;
     }
 
+    /// <summary>
+    /// Authenticates a user based on the provided username and password.
+    /// </summary>
+    /// <param name="username">The username provided by the user.</param>
+    /// <param name="password">The password provided by the user.</param>
+    /// <returns>A JWT token if authentication is successful; otherwise, null.</returns>
     public async Task<string?> AuthenticateAsync(string username, string password)
     {
-        var configuredUsername = _configuration["QuartzDashboard:Auth:Username"];
-        var configuredPassword = _configuration["QuartzDashboard:Auth:Password"];
+        var configuredUsername = _authSettings.Username;
+        var configuredPassword = _authSettings.Password;
 
         if (string.IsNullOrEmpty(configuredUsername) || string.IsNullOrEmpty(configuredPassword))
         {
@@ -40,6 +55,11 @@ public class AuthService
         return null;
     }
 
+    /// <summary>
+    /// Validates a given JWT token.
+    /// </summary>
+    /// <param name="token">The JWT token to validate.</param>
+    /// <returns>True if the token is valid; otherwise, false.</returns>
     public bool ValidateToken(string token)
     {
         if (string.IsNullOrEmpty(token))
@@ -55,9 +75,9 @@ public class AuthService
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = key,
                 ValidateIssuer = true,
-                ValidIssuer = _configuration["QuartzDashboard:Auth:Issuer"] ?? "QuartzDashboard",
+                ValidIssuer = _authSettings.Issuer,
                 ValidateAudience = true,
-                ValidAudience = _configuration["QuartzDashboard:Auth:Audience"] ?? "QuartzDashboardUsers",
+                ValidAudience = _authSettings.Audience,
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero
             }, out var validatedToken);
@@ -71,14 +91,19 @@ public class AuthService
         }
     }
 
+    /// <summary>
+    /// Generates a JWT token for the authenticated user.
+    /// </summary>
+    /// <param name="username">The username for whom the token is generated.</param>
+    /// <returns>A signed JWT token string.</returns>
     private string GenerateJwtToken(string username)
     {
         var secretKey = GetSecretKey();
-        var issuer = _configuration["QuartzDashboard:Auth:Issuer"] ?? "QuartzDashboard";
-        var audience = _configuration["QuartzDashboard:Auth:Audience"] ?? "QuartzDashboardUsers";
+        var issuer = _authSettings.Issuer;
+        var audience = _authSettings.Audience;
 
         var tokenExpiryMinutes = 60;
-        if (int.TryParse(_configuration["QuartzDashboard:Auth:TokenExpiryMinutes"], out var configuredExpiry))
+        if (int.TryParse(_authSettings.TokenExpiryMinutes, out var configuredExpiry))
         {
             tokenExpiryMinutes = configuredExpiry;
         }
@@ -100,9 +125,14 @@ public class AuthService
         return tokenHandler.WriteToken(token);
     }
 
+    /// <summary>
+    /// Retrieves the symmetric security key based on the configured secret.
+    /// If no secret is provided, a temporary random key is generated (not recommended for production).
+    /// </summary>
+    /// <returns>A symmetric security key derived from the configured secret.</returns>
     private SymmetricSecurityKey GetSecretKey()
     {
-        var secret = _configuration["QuartzDashboard:Auth:Secret"];
+        var secret = _authSettings.Secret;
 
         if (string.IsNullOrEmpty(secret))
         {

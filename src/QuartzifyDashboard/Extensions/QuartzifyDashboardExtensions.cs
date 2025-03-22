@@ -7,22 +7,37 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
+using QuartzifyDashboard.Helpers;
 using QuartzifyDashboard.Middleware;
 using QuartzifyDashboard.Services;
 
 namespace QuartzifyDashboard.Extensions;
 
+/// <summary>
+/// Provides extension methods to configure Quartz Dashboard services and middleware.
+/// </summary>
 public static class QuartzDashboardExtensions
 {
+    /// <summary>
+    /// Adds Quartz Dashboard services and JWT authentication to the service collection.
+    /// </summary>
+    /// <param name="services">The service collection to configure.</param>
+    /// <param name="configuration">The configuration object containing authentication settings.</param>
+    /// <returns>The updated service collection.</returns>
     public static IServiceCollection AddQuartzDashboard(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddServices();
         services.AddJwtBearer(configuration);
         services.ConfigureJsonOptions();
+        services.AddConfigurations(configuration);
             
         return services;
     }
 
+    /// <summary>
+    /// Registers core services needed by the Quartz Dashboard.
+    /// </summary>
+    /// <param name="services">The service collection to configure.</param>
     private static void AddServices(this IServiceCollection services)
     {
         services.AddSingleton<QuartzService>();
@@ -30,6 +45,11 @@ public static class QuartzDashboardExtensions
         services.AddSingleton<AuthService>();
     }
 
+    /// <summary>
+    /// Configures JWT authentication for the Quartz Dashboard.
+    /// </summary>
+    /// <param name="services">The service collection to configure.</param>
+    /// <param name="configuration">The configuration object containing JWT settings.</param>
     private static void AddJwtBearer(this IServiceCollection services, IConfiguration configuration)
     {
         var jwtSecret = configuration["QuartzDashboard:Auth:Secret"];
@@ -63,6 +83,10 @@ public static class QuartzDashboardExtensions
             });
     }
 
+    /// <summary>
+    /// Configures JSON serialization options for controllers.
+    /// </summary>
+    /// <param name="services">The service collection to configure.</param>
     private static void ConfigureJsonOptions(this IServiceCollection services)
     {
         services.AddControllers()
@@ -72,7 +96,23 @@ public static class QuartzDashboardExtensions
                 options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             });
     }
-        
+
+    /// <summary>
+    /// Adds configurations from AppSettings.
+    /// </summary>
+    /// <param name="services">The service collection to configure.</param>
+    /// <param name="configuration">The configuration object.</param>
+    private static void AddConfigurations(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<AuthSettings>(configuration.GetSection("Quartzify:Auth"));
+    }
+    
+    /// <summary>
+    /// Sets up the Quartz Dashboard middleware and static file handling.
+    /// </summary>
+    /// <param name="app">The application builder.</param>
+    /// <param name="routePrefix">The route prefix for accessing the dashboard. Defaults to "quartzify".</param>
+    /// <returns>The updated application builder.</returns>
     public static IApplicationBuilder UseQuartzDashboard(this IApplicationBuilder app, string routePrefix = "quartzify")
     {
         routePrefix = routePrefix.Trim('/');
