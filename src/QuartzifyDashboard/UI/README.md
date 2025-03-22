@@ -1,0 +1,1 @@
+This folder holds Angular UI build output.
