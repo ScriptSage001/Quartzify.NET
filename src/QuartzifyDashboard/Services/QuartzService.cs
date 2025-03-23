@@ -291,7 +291,7 @@ public class QuartzService : IHostedService
     /// <param name="triggerKey">The key of the trigger to pause.</param>
     public async Task PauseTriggerAsync(string triggerKey)
     {
-        var key = new TriggerKey(triggerKey);
+        var key = CreateTriggerKey(triggerKey);
         await _scheduler?.PauseTrigger(key)!;
         _logger.LogInformation("Paused trigger: {triggerKey} at {Timestamp}", triggerKey, DateTime.UtcNow);
     }
@@ -302,7 +302,7 @@ public class QuartzService : IHostedService
     /// <param name="triggerKey">The key of the trigger to resume.</param>
     public async Task ResumeTriggerAsync(string triggerKey)
     {
-        var key = new TriggerKey(triggerKey);
+        var key = CreateTriggerKey(triggerKey);
         await _scheduler?.ResumeTrigger(key)!;
         _logger.LogInformation("Resumed trigger: {triggerKey} at {Timestamp}", triggerKey, DateTime.UtcNow);
     }
@@ -416,6 +416,19 @@ public class QuartzService : IHostedService
         return keyParts.Length == 2
             ? new JobKey(keyParts[1], keyParts[0])
             : new JobKey(jobKey);
+    }
+
+    /// <summary>
+    /// Creates a TriggerKey instance from a string key.
+    /// </summary>
+    /// <param name="triggerKey"></param>
+    /// <returns></returns>
+    private static TriggerKey CreateTriggerKey(string triggerKey)
+    {
+        var keyParts = triggerKey.Split('.');
+        return keyParts.Length == 2
+            ? new TriggerKey(keyParts[1], keyParts[0])
+            : new TriggerKey(triggerKey);
     }
     
     #endregion
