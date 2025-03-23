@@ -33,7 +33,9 @@ public static class QuartzDashboardEndpoints
         });
 
         // Scheduler endpoints
-        var securedApiGroup = apiGroup.RequireAuthorization();
+        var securedApiGroup = endpoints
+                                .MapGroup($"{routePrefix}/api")
+                                .RequireAuthorization();
         
         securedApiGroup.MapGet("/scheduler/status", async (QuartzService quartzService) =>
         {

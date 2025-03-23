@@ -31,53 +31,6 @@ public class QuartzService : IHostedService
     }
 
     /// <summary>
-    /// Initializes and starts the Quartz scheduler.
-    /// </summary>
-    /// <param name="cancellationToken">Cancellation token to stop initialization if needed.</param>
-    private async Task InitializeScheduler(CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(_schedulerFactory);
-            
-        try
-        {
-            _logger.LogInformation("Initializing Quartz Scheduler..."); 
-                
-            _scheduler = await _schedulerFactory.GetScheduler(cancellationToken)
-                         ?? throw new InvalidOperationException("Failed to initialize Quartz scheduler");
-                
-            _logger.LogInformation("Quartz Scheduler initialized."); 
-                
-            _logger.LogInformation("Starting Quartz Scheduler...");
-
-            if (_scheduler.ListenerManager.GetJobListeners()
-                .All(l => l.Name != nameof(JobExecutionHistoryListener)))
-            {
-                _scheduler.ListenerManager.AddJobListener(
-                    new JobExecutionHistoryListener(_loggerFactory),
-                    GroupMatcher<JobKey>.AnyGroup()
-                );
-
-                _logger.LogInformation("JobExecutionHistoryListener registered.");
-            }
-
-            if (!_scheduler.IsStarted)
-            {
-                await _scheduler.Start(cancellationToken);
-                _logger.LogInformation("Quartz Scheduler started successfully.");
-            }
-            else
-            {
-                _logger.LogWarning("Quartz Scheduler was already running.");
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to start Quartz Scheduler.");
-            throw;
-        }
-    }
-
-    /// <summary>
     /// Starts the Quartz service and retries initialization on failure.
     /// </summary>
     /// <param name="cancellationToken">Cancellation token to stop the service.</param>
@@ -273,7 +226,7 @@ public class QuartzService : IHostedService
     /// <param name="jobKey">The key of the job to pause.</param>
     public async Task PauseJobAsync(string jobKey)
     {
-        var key = JobKey.Create(jobKey);
+        var key = CreateJobKey(jobKey);
         await _scheduler?.PauseJob(key)!;
         _logger.LogInformation("Paused job: {jobKey} at {Timestamp}", jobKey, DateTime.UtcNow);
     }
@@ -284,7 +237,7 @@ public class QuartzService : IHostedService
     /// <param name="jobKey">The key of the job to resume.</param>
     public async Task ResumeJobAsync(string jobKey)
     {
-        var key = JobKey.Create(jobKey);
+        var key = CreateJobKey(jobKey);
         await _scheduler?.ResumeJob(key)!;
         _logger.LogInformation("Resumed job: {jobKey} at {Timestamp}", jobKey, DateTime.UtcNow);
     }
@@ -295,7 +248,7 @@ public class QuartzService : IHostedService
     /// <param name="jobKey">The key of the job to trigger.</param>
     public async Task TriggerJobAsync(string jobKey)
     {
-        var key = JobKey.Create(jobKey);
+        var key = CreateJobKey(jobKey);
         await _scheduler?.TriggerJob(key)!;
         _logger.LogInformation("Manually triggered job: {jobKey} at {Timestamp}", jobKey, DateTime.UtcNow);
     }
@@ -306,7 +259,7 @@ public class QuartzService : IHostedService
     /// <param name="jobKey">The key of the job to delete.</param>
     public async Task DeleteJobAsync(string jobKey)
     {
-        var key = JobKey.Create(jobKey);
+        var key = CreateJobKey(jobKey);
         await _scheduler?.DeleteJob(key)!;
         _logger.LogInformation("Deleted job: {jobKey} at {Timestamp}", jobKey, DateTime.UtcNow);
     }
@@ -376,4 +329,68 @@ public class QuartzService : IHostedService
             waitForJobsToComplete, DateTime.UtcNow);
         return true;
     }
+    
+    #region Private Methods
+    
+    /// <summary>
+    /// Initializes and starts the Quartz scheduler.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token to stop initialization if needed.</param>
+    private async Task InitializeScheduler(CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(_schedulerFactory);
+            
+        try
+        {
+            _logger.LogInformation("Initializing Quartz Scheduler..."); 
+                
+            _scheduler = await _schedulerFactory.GetScheduler(cancellationToken)
+                         ?? throw new InvalidOperationException("Failed to initialize Quartz scheduler");
+                
+            _logger.LogInformation("Quartz Scheduler initialized."); 
+                
+            _logger.LogInformation("Starting Quartz Scheduler...");
+
+            if (_scheduler.ListenerManager.GetJobListeners()
+                .All(l => l.Name != nameof(JobExecutionHistoryListener)))
+            {
+                _scheduler.ListenerManager.AddJobListener(
+                    new JobExecutionHistoryListener(_loggerFactory),
+                    GroupMatcher<JobKey>.AnyGroup()
+                );
+
+                _logger.LogInformation("JobExecutionHistoryListener registered.");
+            }
+
+            if (!_scheduler.IsStarted)
+            {
+                await _scheduler.Start(cancellationToken);
+                _logger.LogInformation("Quartz Scheduler started successfully.");
+            }
+            else
+            {
+                _logger.LogWarning("Quartz Scheduler was already running.");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to start Quartz Scheduler.");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Creates a JobKey instance from a string key.
+    /// </summary>
+    /// <param name="jobKey"></param>
+    /// <returns></returns>
+    private static JobKey CreateJobKey(string jobKey)
+    {
+        var keyParts = jobKey.Split('.');
+        return keyParts.Length == 2
+            ? new JobKey(keyParts[1], keyParts[0])
+            : new JobKey(jobKey);
+    }
+    
+    #endregion
 }

@@ -1,11 +1,10 @@
-using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using QuartzifyDashboard.Helpers;
 using QuartzifyDashboard.Middleware;
@@ -40,8 +39,13 @@ public static class QuartzDashboardExtensions
     /// <param name="services">The service collection to configure.</param>
     private static void AddServices(this IServiceCollection services)
     {
-        services.AddSingleton<QuartzService>();
         services.AddHostedService<QuartzService>();
+        services
+            .AddSingleton<QuartzService>(serviceProvider =>
+            (QuartzService)serviceProvider
+                .GetServices<IHostedService>()
+                .First(service => service is QuartzService));
+        
         services.AddSingleton<AuthService>();
     }
 
@@ -52,7 +56,7 @@ public static class QuartzDashboardExtensions
     /// <param name="configuration">The configuration object containing JWT settings.</param>
     private static void AddJwtBearer(this IServiceCollection services, IConfiguration configuration)
     {
-        var jwtSecret = configuration["QuartzDashboard:Auth:Secret"];
+        var jwtSecret = configuration["Quartzify:Auth:Secret"];
         if (string.IsNullOrEmpty(jwtSecret))
         {
             jwtSecret = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
@@ -60,27 +64,20 @@ public static class QuartzDashboardExtensions
 
         var key = Encoding.UTF8.GetBytes(jwtSecret);
 
-        services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(x =>
-            {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
+        services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = true,
-                    ValidIssuer = configuration["QuartzDashboard:Auth:Issuer"] ?? "QuartzDashboard",
+                    ValidIssuer = configuration.GetSection("Quartzify:Auth:Issuer").Value,
                     ValidateAudience = true,
-                    ValidAudience = configuration["QuartzDashboard:Auth:Audience"] ?? "QuartzDashboardUsers",
+                    ValidAudience = configuration.GetSection("Quartzify:Auth:Audience").Value,
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
-                };
-            });
+                });
     }
 
     /// <summary>
@@ -117,22 +114,27 @@ public static class QuartzDashboardExtensions
     {
         routePrefix = routePrefix.Trim('/');
 
+        app.UseRouting();
+        
         app.UseMiddleware<ErrorHandlingMiddleware>();
 
+        app.UseAuthentication();
+        app.UseAuthorization();
+        
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapQuartzDashboardEndpoints(routePrefix);
         });
 
-        var assembly = Assembly.GetExecutingAssembly();
-        var uiResourcePath = assembly.GetManifestResourceNames()
-            .Single(str => str.EndsWith("ui.package.zip"));
-
-        app.UseStaticFiles(new StaticFileOptions
-        {
-            FileProvider = new EmbeddedFileProvider(assembly, Path.GetDirectoryName(uiResourcePath)),
-            RequestPath = $"/{routePrefix}"
-        });
+        // var assembly = Assembly.GetExecutingAssembly();
+        // var uiResourcePath = assembly.GetManifestResourceNames()
+        //     .Single(str => str.EndsWith("ui.package.zip"));
+        //
+        // app.UseStaticFiles(new StaticFileOptions
+        // {
+        //     FileProvider = new EmbeddedFileProvider(assembly, Path.GetDirectoryName(uiResourcePath)),
+        //     RequestPath = $"/{routePrefix}"
+        // });
 
         app.Use(async (context, next) =>
         {
