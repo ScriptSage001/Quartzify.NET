@@ -65,7 +65,7 @@ public static class DependencyInjection
             options.WaitForJobsToComplete = true;
         });
 
-        services.AddQuartzDashboard(configuration);
+        services.AddQuartzifyDashboard(configuration);
         
         return services;
     }

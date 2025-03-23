@@ -19,12 +19,37 @@
 
 #endregion
 
+using Microsoft.Extensions.Configuration;
 using Quartz;
 
-namespace ExampleHostApp;
+namespace QuartzifyDashboard.Extensions;
 
-public static class QuartzExtensions
+/// <summary>
+/// Provides extension methods for Adding Jobs with corresponding Triggers and converting Quartz JobDataMap to a Dictionary.
+/// </summary>
+public static class JobExtensions
 {
+    /// <summary>
+    /// Converts a Quartz JobDataMap to a Dictionary with string keys and object values.
+    /// </summary>
+    /// <param name="map">The JobDataMap to convert.</param>
+    /// <returns>A dictionary containing all key-value pairs from the JobDataMap.</returns>
+    public static Dictionary<string, object> ToDictionary(this JobDataMap map)
+    {
+        var result = new Dictionary<string, object>();
+        foreach (var key in map.Keys)
+        {
+            result[key] = map[key];
+        }
+        return result;
+    }
+    
+    /// <summary>
+    /// Registers a job of type <typeparamref name="T"/> along with a trigger using the provided configuration.
+    /// </summary>
+    /// <param name="quartz"></param>
+    /// <param name="configuration"></param>
+    /// <typeparam name="T"></typeparam>
     public static void AddJobAndTrigger<T>(
         this IServiceCollectionQuartzConfigurator quartz,
         IConfiguration configuration) where T : IJob

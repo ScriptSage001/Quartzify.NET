@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services
         .AddServices()
         .AddOpenApiDocumentation()
-        .AddQuartzWithDashboard(builder.Configuration);
+        .AddQuartzWithQuartzify(builder.Configuration, AssemblyReference.Assembly);
 }
 
 {

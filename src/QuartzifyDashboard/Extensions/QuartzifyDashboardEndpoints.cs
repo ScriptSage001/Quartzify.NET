@@ -28,9 +28,9 @@ using QuartzifyDashboard.Services;
 namespace QuartzifyDashboard.Extensions;
 
 /// <summary>
-/// Provides extension methods to define Quartz dashboard API endpoints.
+/// Provides extension methods to define Quartzify dashboard API endpoints.
 /// </summary>
-public static class QuartzDashboardEndpoints
+public static class QuartzifyDashboardEndpoints
 {
     /// <summary>
     /// Maps the Quartz dashboard API endpoints to the given route prefix.
