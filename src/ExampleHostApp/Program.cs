@@ -18,6 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 
     if (app.Environment.IsDevelopment())
     {
+        app.UseStaticFiles();
         app.MapOpenApi();
         app.MapScalarApiReference(options =>
         {
@@ -25,6 +26,7 @@ var builder = WebApplication.CreateBuilder(args);
                 .WithTitle("Quartzify.NET API Documentation")
                 .WithTheme(ScalarTheme.Mars)
                 .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+                .WithFavicon("../favicon.ico")
                 .WithModels(true);
             
         });

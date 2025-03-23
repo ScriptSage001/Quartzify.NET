@@ -16,4 +16,8 @@
       <ProjectReference Include="..\QuartzifyDashboard\QuartzifyDashboard.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="wwwroot\" />
+    </ItemGroup>
+
 </Project>
