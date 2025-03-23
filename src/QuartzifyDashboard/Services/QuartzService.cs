@@ -1,3 +1,24 @@
+#region License
+
+/*
+ * All content copyright Kaustab Samanta, unless otherwise indicated. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
+#endregion
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
 using Polly;
@@ -292,7 +313,12 @@ public class QuartzService : IHostedService
     /// <returns>A task that returns true if the scheduler was started, false if it was already started.</returns>
     public async Task<bool> StartSchedulerAsync()
     {
-        if (_scheduler is { IsStarted: true }) 
+        // if (_scheduler is { IsStarted: true })
+        //     return false;
+        
+        if (_scheduler == null || 
+            (_scheduler.IsStarted && !_scheduler.InStandbyMode) || 
+            (_scheduler.IsStarted && !_scheduler.IsShutdown))
             return false;
             
         await _scheduler?.Start()!;
