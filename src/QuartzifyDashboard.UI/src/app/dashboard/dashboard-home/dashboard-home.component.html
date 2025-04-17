@@ -1,0 +1,45 @@
+<div class="dashboard-container">
+    <div class="dashboard-header">
+      <h1>Dashboard</h1>
+      <div class="actions">
+        <button mat-mini-fab color="primary" (click)="refreshData()" matTooltip="Refresh Dashboard">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+    </div>
+    
+    <div *ngIf="isLoading">
+      <app-loading-spinner message="Loading dashboard data..."></app-loading-spinner>
+    </div>
+    
+    <div *ngIf="errorMessage" class="error-container">
+      <mat-card>
+        <mat-card-content>
+          <p class="error-message">
+            <mat-icon>error</mat-icon>
+            {{ errorMessage }}
+          </p>
+          <button mat-raised-button color="primary" (click)="loadDashboardData()">
+            Retry
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    
+    <div *ngIf="!isLoading && !errorMessage" class="dashboard-grid">
+      <!-- Scheduler Status Widget -->
+      <div class="grid-item grid-item-full">
+        <app-status-widget [schedulerStatus]="schedulerStatus"></app-status-widget>
+      </div>
+      
+      <!-- Jobs Overview Widget -->
+      <div class="grid-item">
+        <app-jobs-overview [jobs]="jobs" [triggers]="triggers"></app-jobs-overview>
+      </div>
+      
+      <!-- Recent History Widget -->
+      <div class="grid-item">
+        <app-recent-history></app-recent-history>
+      </div>
+    </div>
+  </div>

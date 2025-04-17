@@ -1,0 +1,97 @@
+.status-widget {
+    .status-grid {
+        display: grid;
+        grid-template-columns: auto 1fr 1fr 1fr;
+        gap: 20px;
+        align-items: center;
+    }
+
+    .status-indicator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        .status-dot {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-bottom: 8px;
+
+            &.status-running {
+                background-color: #4caf50;
+                box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+            }
+
+            &.status-standby {
+                background-color: #ff9800;
+                box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+            }
+
+            &.status-shutdown {
+                background-color: #f44336;
+                box-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
+            }
+
+            &.status-unknown {
+                background-color: #9e9e9e;
+                box-shadow: 0 0 10px rgba(158, 158, 158, 0.5);
+            }
+        }
+
+        .status-label {
+            font-size: 18px;
+            font-weight: 500;
+        }
+    }
+
+    .info-section,
+    .advanced-info {
+        .info-item {
+            display: flex;
+            margin-bottom: 8px;
+
+            .info-label {
+                font-weight: 500;
+                min-width: 100px;
+                color: #757575;
+            }
+
+            .info-value {
+                font-family: 'Roboto Mono', monospace;
+            }
+        }
+    }
+
+    .control-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+
+        button {
+            min-width: 100px;
+        }
+    }
+}
+
+@media (max-width: 1024px) {
+    .status-grid {
+        grid-template-columns: 1fr 1fr !important;
+        grid-template-rows: auto auto;
+
+        .control-buttons {
+            grid-column: span 2;
+            justify-content: center !important;
+        }
+    }
+}
+
+@media (max-width: 600px) {
+    .status-grid {
+        grid-template-columns: 1fr !important;
+
+        .control-buttons {
+            grid-column: span 1;
+        }
+    }
+}

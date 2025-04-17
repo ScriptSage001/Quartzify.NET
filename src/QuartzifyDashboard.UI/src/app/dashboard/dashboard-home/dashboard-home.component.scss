@@ -1,0 +1,58 @@
+.dashboard-container {
+    max-width: 1600px;
+    margin: 0 auto;
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+
+        h1 {
+            font-size: 28px;
+            font-weight: 500;
+            margin: 0;
+            color: #3c4043;
+        }
+    }
+
+    .error-container {
+        margin-bottom: 20px;
+
+        .error-message {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+
+            mat-icon {
+                color: #f44336;
+                margin-right: 8px;
+            }
+        }
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+
+        .grid-item {
+            min-height: 300px;
+
+            &.grid-item-full {
+                grid-column: span 2;
+                min-height: 150px;
+            }
+        }
+    }
+}
+
+@media (max-width: 767px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr !important;
+
+        .grid-item-full {
+            grid-column: span 1 !important;
+        }
+    }
+}

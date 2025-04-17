@@ -1,0 +1,22 @@
+<mat-toolbar color="primary">
+  <button mat-icon-button (click)="onToggleSidebar()">
+    <mat-icon fontIcon="menu"></mat-icon>
+  </button>
+
+  <span class="navbar-brand">Quartzify.NET</span>
+
+  <span class="spacer"></span>
+
+  <ng-container *ngIf="authService.currentUser$ | async as user">
+    <span class="username">{{ user.username }}</span>
+    <button mat-icon-button [matMenuTriggerFor]="userMenu">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item (click)="onLogout()">
+        <mat-icon>exit_to_app</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  </ng-container>
+</mat-toolbar>

@@ -1,0 +1,71 @@
+<mat-card class="status-widget">
+    <mat-card-header>
+        <mat-card-title>Scheduler Status</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+        <div class="status-grid">
+            <!-- Status Indicator -->
+            <div class="status-indicator">
+                <div class="status-dot" [ngClass]="statusClass"></div>
+                <div class="status-label">{{ statusText }}</div>
+            </div>
+
+            <!-- Info Section -->
+            <div class="info-section" *ngIf="schedulerStatus">
+                <div class="info-item">
+                    <div class="info-label">Name:</div>
+                    <div class="info-value">{{ schedulerStatus.schedulerName }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Instance ID:</div>
+                    <div class="info-value">{{ schedulerStatus.schedulerInstanceId }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Job Store:</div>
+                    <div class="info-value">{{ schedulerStatus.jobStoreType }}</div>
+                </div>
+            </div>
+
+            <!-- Advanced Info -->
+            <div class="advanced-info" *ngIf="schedulerStatus">
+                <div class="info-item">
+                    <div class="info-label">Thread Pool:</div>
+                    <div class="info-value">{{ schedulerStatus.threadPoolType }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Pool Size:</div>
+                    <div class="info-value">{{ schedulerStatus.threadPoolSize }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Version:</div>
+                    <div class="info-value">{{ schedulerStatus.version }}</div>
+                </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="control-buttons">
+                <button mat-raised-button color="primary"
+                    [disabled]="isProcessing || !schedulerStatus || (schedulerStatus && schedulerStatus.isStarted)"
+                    (click)="startScheduler()">
+                    <mat-icon>play_arrow</mat-icon>
+                    Start
+                </button>
+
+                <button mat-raised-button color="accent"
+                    [disabled]="isProcessing || !schedulerStatus || (schedulerStatus && schedulerStatus.isStandbyMode)"
+                    (click)="standbyScheduler()">
+                    <mat-icon>pause</mat-icon>
+                    Standby
+                </button>
+
+                <button mat-raised-button color="warn"
+                    [disabled]="isProcessing || !schedulerStatus || (schedulerStatus && schedulerStatus.isShutdown)"
+                    (click)="openShutdownDialog()">
+                    <mat-icon>stop</mat-icon>
+                    Shutdown
+                </button>
+            </div>
+        </div>
+    </mat-card-content>
+</mat-card>

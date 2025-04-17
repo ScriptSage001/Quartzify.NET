@@ -1,0 +1,57 @@
+:root {
+  /* Primary colors */
+  --color-primary: #3B82F6;
+  --color-primary-light: #93C5FD;
+  --color-primary-dark: #1D4ED8;
+  
+  /* Secondary colors */
+  --color-secondary: #10B981;
+  --color-secondary-light: #6EE7B7;
+  --color-secondary-dark: #059669;
+  
+  /* Accent colors */
+  --color-accent: #8B5CF6;
+  --color-accent-light: #C4B5FD;
+  --color-accent-dark: #6D28D9;
+  
+  /* Neutral colors */
+  --color-background: #F9FAFB;
+  --color-surface: #FFFFFF;
+  --color-text-primary: #1F2937;
+  --color-text-secondary: #6B7280;
+  --color-text-tertiary: #9CA3AF;
+  --color-border: #E5E7EB;
+  
+  /* Semantic colors */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+  
+  /* Component-specific colors */
+  --color-header-bg: #FFFFFF;
+  --color-sidebar-bg: #FFFFFF;
+  --color-sidebar-active: #EFF6FF;
+  --color-card-bg: #FFFFFF;
+  --color-card-shadow: rgba(0, 0, 0, 0.05);
+  
+  /* Dark mode colors (if needed) */
+  --color-dark-background: #1F2937;
+  --color-dark-surface: #374151;
+  --color-dark-text-primary: #F9FAFB;
+  --color-dark-text-secondary: #E5E7EB;
+}
+
+/* Optional utility classes */
+.bg-primary { background-color: var(--color-primary); }
+.bg-secondary { background-color: var(--color-secondary); }
+.bg-accent { background-color: var(--color-accent); }
+.bg-surface { background-color: var(--color-surface); }
+.bg-background { background-color: var(--color-background); }
+
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--color-secondary); }
+.text-accent { color: var(--color-accent); }
+.text-dark { color: var(--color-text-primary); }
+.text-medium { color: var(--color-text-secondary); }
+.text-light { color: var(--color-text-tertiary); }
