@@ -1,1 +1,14 @@
-<router-outlet></router-outlet>
+<mat-sidenav-container>
+  <mat-sidenav #drawer [mode]="(isHandset$ | async) ? 'over' : 'side'"
+               [opened]="!(isHandset$ | async)" 
+               fixedInViewport>
+    <app-sidebar></app-sidebar>
+  </mat-sidenav>
+  
+  <mat-sidenav-content>
+    <app-navbar (toggleSidebar)="toggleSidebar()"></app-navbar>
+    <div class="content-container">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
